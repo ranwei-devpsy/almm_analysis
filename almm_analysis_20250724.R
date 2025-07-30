@@ -6,13 +6,14 @@
 # packages ----------------------------------------------------------------
 library(psych)
 library(dplyr)
+library(pwr)
 library(apaTables)
 library(modelsummary)
 library(pandoc)
 library(interactions)
 library(patchwork)
 library(emmeans)
-
+library(naniar)
 
 # importing data -----------------------------------------------------------
 labwithmaap_20250726 <- read.csv("/Users/ranwei/Dropbox (Personal)/ALMM/ALMM data/labwithmaap_20250726.csv", header = TRUE)
@@ -41,6 +42,9 @@ table(almmlab$female)
 mean(almmlab$female)
 table(almmlab$bilingual)
 mean(almmlab$bilingual)
+table(almmlab$music)
+mean(almmlab$music)
+14/30
 
 summary(almmlab$education_year)
 sd(almmlab$education_year)
@@ -85,6 +89,10 @@ table(almmsurvey$education_year)
 17/76
 57/76
 
+table(almmsurvey$music)
+mean(almmsurvey$music)
+18/76
+
 summary(almmsurvey$music_infant_total_times)
 sd(almmsurvey$music_infant_total_times)
 summary(almmsurvey$music_current_total_times) 
@@ -106,7 +114,7 @@ summary(almmsurvey$emq_pa)
 sd(almmsurvey$emq_pa, na.rm = TRUE)
 
 
-# counting missing data -----------------------------------------------------------
+# missing data -----------------------------------------------------------
 sum(is.na(almmlabsurvey$music_infant_total))
 sum(is.na(almmlabsurvey$music_toddler_total))
 sum(is.na(almmlabsurvey$cdi_raw))
@@ -135,6 +143,11 @@ survey_nobilingual_bilingual <- c(58, 18)
 conttable_bilingual <- data.frame(lab_nobilingual_bilingual, survey_nobilingual_bilingual)
 chisq.test(conttable_bilingual) #* 
 
+lab_nomusicclass_musicclass <- c(16, 14)
+survey_nomusicclass_musicclass <- c(58, 18)
+conttable_musicclass <- data.frame(lab_nomusicclass_musicclass, survey_nomusicclass_musicclass)
+chisq.test(conttable_musicclass) #* 
+
 # calculating cronbach's alpha of music survey --------------------------------------------
 
 mus_columns <- names(almmlabsurvey_20250726)[
@@ -159,9 +172,24 @@ alpha_result_times <- alpha(music_timesperweek, check.keys = TRUE)
 alpha_result_times$total$raw_alpha
 
 
+# Power analysis for interaction term ----------------------------------------------------------
+install.packages("pwr")
+# Example: small-to-moderate effect size f² = 0.05
+# u = number of predictors being tested (e.g., 1 if you're testing just the interaction)
+# f2 = effect size
+# power = desired power level (e.g., 0.80)
+# sig.level = alpha level (e.g., 0.05)
+
+pwr.f2.test(u = 3,           # number of predictors being tested
+            f2 = 0.1,       # Cohen's f² effect size
+            sig.level = 0.05,
+            power = 0.80)
+3 + 109 + 1 #n = u + v + 1 = 113
+
+
 # TO DO: calculating EMQ alpha ---------------------------------------------------
 
-emq_allitems <- read.csv("/Users/ranwei/Dropbox (Personal)/ALMM/ALMM data/EMQ data_Rowe Lab.csv", header = TRUE)
+
 
 # RQ 1: descriptive stats of music survey - full sample -------------------
 
@@ -293,8 +321,6 @@ modelsummary(
 
 
 # RQ 3: simple slopes analysis and visualization --------------------------
-
-options(digits = 2)  
 
 sim_slopes(cdi_infancy_int, pred = music_infant_total_times, modx = bilingual)
 sim_slopes(cdi_cumulative_int, pred = music_total_times, modx = bilingual)
