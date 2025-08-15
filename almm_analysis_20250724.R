@@ -10,108 +10,141 @@ library(pwr)
 library(apaTables)
 library(modelsummary)
 library(pandoc)
-library(interactions)
+library(interactions) 
 library(patchwork)
 library(emmeans)
 library(naniar)
 
 # importing data -----------------------------------------------------------
-labwithmaap_20250726 <- read.csv("/Users/ranwei/Dropbox (Personal)/ALMM/ALMM data/labwithmaap_20250726.csv", header = TRUE)
-almmlabsurvey_20250726 <- read.csv("/Users/ranwei/Dropbox (Personal)/ALMM/ALMM data/almmlabsurvey_20250726.csv", header = TRUE)
+almmlabsurvey_20250815 <- read.csv("/Users/ranwei/Dropbox (Personal)/ALMM/ALMM data/almmlabsurvey_20250815.csv", header = TRUE)
+# almmlabsurvey_20250815.csv = all behavioral and survey data, both cohorts
 music_timesperweek <- read.csv("/Users/ranwei/Dropbox (Personal)/ALMM/ALMM data/music_timesperweek.csv", header = TRUE)
+emq_labsurvey_allitems <- read.csv("/Users/ranwei/Dropbox (Personal)/ALMM/ALMM data/emq_labsurvey_allitems.csv", header = TRUE)
+
 
 labwithmaap_20250726$X <- NULL
-almmlabsurvey_20250726$X <- NULL
+almmlabsurvey_20250815$X <- NULL
+almmlabsurvey_20250815$...1 <- NULL
 music_timesperweek$X <- NULL
 
-# almmlabsurvey_20250726.csv = all behavioral and survey data, both cohorts
-# labwithmaap_20250726.csv = all behavioral, survey, and eye tracking data, lab cohort, long format
+# Table 1 descriptive stats: full sample, monolingual, and multilingual ------------------------------------------------------
 
-# Table 1 descriptive stats  ------------------------------------------------------
+almmmono <- almmlabsurvey_20250815[almmlabsurvey_20250815$bilingual == 0, ]
+dim(almmmono)
+almmmulti <- almmlabsurvey_20250815[almmlabsurvey_20250815$bilingual == 1, ]
+dim(almmmulti)
 
-almmlab <- almmlabsurvey_20250726[almmlabsurvey_20250726$lab == 1, ]
-almmsurvey <- almmlabsurvey_20250726[almmlabsurvey_20250726$lab == 0, ]
-almmlabsurvey <- almmlabsurvey_20250726
+# full sample
+mean(almmlabsurvey$age)
+sd(almmlabsurvey$age)
 
-# pre-pandemic cohort
-mean(almmlab$age)
-sd(almmlab$age)
-range(almmlab$age)
+table(almmlabsurvey$female)
+mean(almmlabsurvey$female)
+table(almmlabsurvey$bilingual)
+mean(almmlabsurvey$bilingual)
+table(almmlabsurvey$music)
+mean(almmlabsurvey$music)
+32/106
 
-table(almmlab$female)
-mean(almmlab$female)
-table(almmlab$bilingual)
-mean(almmlab$bilingual)
-table(almmlab$music)
-mean(almmlab$music)
-14/30
+summary(almmlabsurvey$education_year)
+sd(almmlabsurvey$education_year)
+table(almmlabsurvey$education_year)
+3/106
+22/106
+81/106
 
-summary(almmlab$education_year)
-sd(almmlab$education_year)
-table(almmlab$education_year)
-1/30
-5/30
-24/30
+summary(almmlabsurvey$music_infant_total_times)
+sd(almmlabsurvey$music_infant_total_times)
+summary(almmlabsurvey$music_current_total_times) 
+sd(almmlabsurvey$music_current_total_times)
+summary(almmlabsurvey$music_total_times)
+mean(almmlabsurvey$music_total_times)
+sd(almmlabsurvey$music_total_times)
+summary(almmlabsurvey$non_music_total_times)
+sd(almmlabsurvey$non_music_total_times)
 
-summary(almmlab$music_infant_total_times)
-sd(almmlab$music_infant_total_times)
-summary(almmlab$music_current_total_times) 
-sd(almmlab$music_current_total_times)
-summary(almmlab$music_total_times)
-sd(almmlab$music_total_times)
-summary(almmlab$non_music_total_times)
-mean(almmlab$non_music_total_times)
-sd(almmlab$non_music_total_times)
+summary(almmlabsurvey$cdi_raw)
+sd(almmlabsurvey$cdi_raw)
+summary(almmlabsurvey$lui_raw)
+sd(almmlabsurvey$lui_raw, na.rm = TRUE)
+summary(almmlabsurvey$emq_g)
+sd(almmlabsurvey$emq_g, na.rm = TRUE)
+summary(almmlabsurvey$emq_pa)
+sd(almmlabsurvey$emq_pa, na.rm = TRUE)
 
-summary(almmlab$cdi_raw)
-sd(almmlab$cdi_raw)
-summary(almmlab$lui_raw)
-sd(almmlab$lui_raw, na.rm = TRUE)
-summary(almmlab$emq_g)
-sd(almmlab$emq_g, na.rm = TRUE)
-summary(almmlab$emq_pa)
-sd(almmlab$emq_pa, na.rm = TRUE)
+# monolingual cohort
+mean(almmmono$age)
+sd(almmmono$age)
+range(almmmono$age)
 
-# remote cohort
-mean(almmsurvey$age)
-sd(almmsurvey$age)
-range(almmsurvey$age)
+table(almmmono$female)
+mean(almmmono$female)
+table(almmmono$music)
+mean(almmmono$music)
 
-table(almmsurvey$female)
-mean(almmsurvey$female)
-table(almmsurvey$bilingual)
-mean(almmsurvey$bilingual)
+summary(almmmono$education_year)
+sd(almmmono$education_year)
+table(almmmono$education_year)
+2/74
+16/74
+56/74
 
-summary(almmsurvey$education_year)
-sd(almmsurvey$education_year)
-table(almmsurvey$education_year)
-2/76
-17/76
-57/76
+summary(almmmono$music_infant_total_times)
+sd(almmmono$music_infant_total_times)
+summary(almmmono$music_current_total_times) 
+sd(almmmono$music_current_total_times)
+summary(almmmono$music_total_times)
+sd(almmmono$music_total_times)
+summary(almmmono$non_music_total_times)
+sd(almmmono$non_music_total_times)
 
-table(almmsurvey$music)
-mean(almmsurvey$music)
-18/76
+summary(almmmono$cdi_raw)
+sd(almmmono$cdi_raw)
+summary(almmmono$lui_raw)
+sd(almmmono$lui_raw, na.rm = TRUE)
+summary(almmmono$emq_g)
+sd(almmmono$emq_g, na.rm = TRUE)
+summary(almmmono$emq_pa)
+sd(almmmono$emq_pa, na.rm = TRUE)
 
-summary(almmsurvey$music_infant_total_times)
-sd(almmsurvey$music_infant_total_times)
-summary(almmsurvey$music_current_total_times) 
-sd(almmsurvey$music_current_total_times)
-summary(almmsurvey$music_total_times)
-mean(almmsurvey$music_total_times)
-sd(almmsurvey$music_total_times)
-summary(almmsurvey$non_music_total_times)
-mean(almmsurvey$non_music_total_times)
-sd(almmsurvey$non_music_total_times)
+# multilingual cohort
+mean(almmmulti$age)
+sd(almmmulti$age)
+range(almmmulti$age)
 
-summary(almmsurvey$cdi_raw)
-sd(almmsurvey$cdi_raw)
-summary(almmsurvey$lui_raw)
-sd(almmsurvey$lui_raw, na.rm = TRUE)
-summary(almmsurvey$emq_g)
-sd(almmsurvey$emq_g, na.rm = TRUE)
-summary(almmsurvey$emq_pa)
-sd(almmsurvey$emq_pa, na.rm = TRUE)
+table(almmmulti$female)
+mean(almmmulti$female)
+
+summary(almmmulti$education_year)
+sd(almmmulti$education_year)
+table(almmmulti$education_year)
+1/32
+6/32
+25/32
+
+table(almmmulti$music)
+mean(almmmulti$music)
+18/32
+
+summary(almmmulti$music_infant_total_times)
+sd(almmmulti$music_infant_total_times)
+summary(almmmulti$music_current_total_times) 
+sd(almmmulti$music_current_total_times)
+summary(almmmulti$music_total_times)
+mean(almmmulti$music_total_times)
+sd(almmmulti$music_total_times)
+summary(almmmulti$non_music_total_times)
+mean(almmmulti$non_music_total_times)
+sd(almmmulti$non_music_total_times)
+
+summary(almmmulti$cdi_raw)
+sd(almmmulti$cdi_raw)
+summary(almmmulti$lui_raw)
+sd(almmmulti$lui_raw, na.rm = TRUE)
+summary(almmmulti$emq_g)
+sd(almmmulti$emq_g, na.rm = TRUE)
+summary(almmmulti$emq_pa)
+sd(almmmulti$emq_pa, na.rm = TRUE)
 
 
 # missing data -----------------------------------------------------------
@@ -123,39 +156,46 @@ sum(is.na(almmlabsurvey$emq_pa))
 sum(is.na(almmlabsurvey$emq_g))
 
 
-# t-tests and chi-square tests comparing groups -------------------------------------------------
-t.test(almmlabsurvey$age~almmlabsurvey$lab)
-t.test(almmlabsurvey$female~almmlabsurvey$lab)
-t.test(almmlabsurvey$bilingual~almmlabsurvey$lab) #*
-t.test(almmlabsurvey$education_year~almmlabsurvey$lab)
-t.test(almmlabsurvey$cdi_raw~almmlabsurvey$lab)
-t.test(almmlabsurvey$lui_raw~almmlabsurvey$lab)
-t.test(almmlabsurvey$emq_g~almmlabsurvey$lab)
-t.test(almmlabsurvey$emq_pa~almmlabsurvey$lab)
+# t-tests and chi-square tests comparing monolingual vs. multilingual groups -------------------------------------------------
 
-t.test(almmlabsurvey$music_total_times~almmlabsurvey$lab) #~
-t.test(almmlabsurvey$music_infant_total_times~almmlabsurvey$lab) 
-t.test(almmlabsurvey$music_current_total_times~almmlabsurvey$lab) #*
-t.test(almmlabsurvey$non_music_total_times~almmlabsurvey$lab) #~
+t.test(almmlabsurvey$age~almmlabsurvey$bilingual)
+t.test(almmlabsurvey$education_year~almmlabsurvey$bilingual)
+t.test(almmlabsurvey$cdi_raw~almmlabsurvey$bilingual) #***
+t.test(almmlabsurvey$lui_raw~almmlabsurvey$bilingual) #*
+t.test(almmlabsurvey$emq_g~almmlabsurvey$bilingual)
+t.test(almmlabsurvey$emq_pa~almmlabsurvey$bilingual) #*
 
-lab_nobilingual_bilingual <- c(16, 14)
-survey_nobilingual_bilingual <- c(58, 18)
-conttable_bilingual <- data.frame(lab_nobilingual_bilingual, survey_nobilingual_bilingual)
-chisq.test(conttable_bilingual) #* 
+emq_pa_bilingual <- lm(emq_pa ~ age + education_year + bilingual, data = almmlabsurvey) 
+summary(emq_pa_bilingual)
 
-lab_nomusicclass_musicclass <- c(16, 14)
-survey_nomusicclass_musicclass <- c(58, 18)
-conttable_musicclass <- data.frame(lab_nomusicclass_musicclass, survey_nomusicclass_musicclass)
-chisq.test(conttable_musicclass) #* 
+t.test(almmlabsurvey$music_total_times~almmlabsurvey$bilingual) 
+t.test(almmlabsurvey$music_infant_total_times~almmlabsurvey$bilingual) 
+t.test(almmlabsurvey$music_current_total_times~almmlabsurvey$bilingual) 
+t.test(almmlabsurvey$non_music_total_times~almmlabsurvey$bilingual) #*
 
-# calculating cronbach's alpha of music survey --------------------------------------------
+table(almmmono$female)
+table(almmmulti$female)
+mono_male_female <- c(38, 36)
+multi_male_female <- c(11, 21)
+conttable_sex_monomulti <- data.frame(mono_male_female, multi_male_female)
+chisq.test(conttable_sex_monomulti) # ns
 
-mus_columns <- names(almmlabsurvey_20250726)[
-  grepl("mus", names(almmlabsurvey_20250726))]
+table(almmmono$music)
+table(almmmulti$music)
+mono_nomusicclass_musicclass <- c(53, 21)
+multi_nomusicclass_musicclass <- c(21, 11)
+conttable_musicclass_monomulti <- data.frame(mono_nomusicclass_musicclass, multi_nomusicclass_musicclass)
+chisq.test(conttable_musicclass_monomulti) # ns
+
+
+# calculating Cronbach's alpha of music survey --------------------------------------------
+
+mus_columns <- names(almmlabsurvey_20250815)[
+  grepl("mus", names(almmlabsurvey_20250815))]
 
 mus_columns <- mus_columns[1:(length(mus_columns) - 7)]
 mus_columns <- c("id", mus_columns)
-music_raw <- almmlabsurvey_20250726[, mus_columns, drop = FALSE]
+music_raw <- almmlabsurvey_20250815[, mus_columns, drop = FALSE]
 music_raw <- music_raw[, !grepl("_times$", names(music_raw))]
 
 dim(music_raw)
@@ -170,10 +210,10 @@ alpha_result_raw <- alpha(music_raw_alpha)
 alpha_result_raw$total$raw_alpha
 alpha_result_times <- alpha(music_timesperweek, check.keys = TRUE)
 alpha_result_times$total$raw_alpha
+# sensitivity check: similar alpha if calculated with raw score 
 
 
 # Power analysis for interaction term ----------------------------------------------------------
-install.packages("pwr")
 # Example: small-to-moderate effect size f² = 0.05
 # u = number of predictors being tested (e.g., 1 if you're testing just the interaction)
 # f2 = effect size
@@ -187,9 +227,12 @@ pwr.f2.test(u = 3,           # number of predictors being tested
 3 + 109 + 1 #n = u + v + 1 = 113
 
 
-# TO DO: calculating EMQ alpha ---------------------------------------------------
+# calculating Cronbach's alpha for EMQ ---------------------------------------------------
 
-
+emq_labsurvey_allitems$id <- NULL
+emq_labsurvey_allitems$X <- NULL
+alpha_result_raw_emq <- alpha(emq_labsurvey_allitems)
+alpha_result_raw_emq$total$raw_alpha
 
 # RQ 1: descriptive stats of music survey - full sample -------------------
 
@@ -199,6 +242,11 @@ summary(almmlabsurvey$music_current_total_times)
 sd(almmlabsurvey$music_current_total_times)
 summary(almmlabsurvey$non_music_total_times)
 sd(almmlabsurvey$non_music_total_times)
+
+# were music activities outside the home disrupted by COVID?
+t.test(almmlab$mus4.1itookmybabytoconcertstohearlivemusic_times, almmsurvey$mus4.1itookmybabytoconcertstohearlivemusic_times)
+t.test(almmlab$mus2.3attendmusicclasseslessons_times, almmsurvey$mus2.3attendmusicclasseslessons_times)
+
 
 # RQ 1: correlates of music experience ------------------------------------
 
@@ -343,7 +391,7 @@ p1 <- interact_plot(cdi_infancy_int,
               modx = bilingual,
               plot.points = TRUE,        # <- adds data points
               interval = TRUE,
-              modx.labels = c("Monolingual", "DLL"),
+              modx.labels = c("Monolingual Toddlers", "Multilingual Toddlers"),
               colors = c("#A26769", "#D9BF77"),
               x.label = "Infancy Music Activity",
               y.label = "Vocabulary",
@@ -354,7 +402,7 @@ p2 <- interact_plot(cdi_cumulative_int,
               modx = bilingual,
               plot.points = TRUE,        # <- adds data points
               interval = TRUE,
-              modx.labels = c("Monolingual", "DLL"),
+              modx.labels = c("Monolingual Toddlers", "Multilingual Toddlers"),
               colors = c("#A26769", "#D9BF77"),
               x.label = "Cumulative Music Activity",
               y.label = "Vocabulary",
@@ -365,7 +413,7 @@ p3 <- interact_plot(lui_infancy_int,
               modx = bilingual,
               plot.points = TRUE,        # <- adds data points
               interval = TRUE,
-              modx.labels = c("Monolingual", "DLL"),
+              modx.labels = c("Monolingual Toddlers", "Multilingual Toddlers"),
               colors = c("#A26769", "#D9BF77"),
               x.label = "Infancy Music Activity",
               y.label = "Pragmatic Language Skill",
@@ -397,4 +445,184 @@ p5 <- interact_plot(lui_cumulative_int,
 combined_plot <- (p1 | p2 | plot_spacer()) /
   (p3 | p4 | p5) 
 combined_plot
+
+
+# Supplementary Information -----------------------------------------------
+
+# Table S1: re-fitting the models controlling for non-music activities  ----------------------------------------------
+
+cdi_infancy_int_nonmusic <- lm(cdi_raw ~ age + education_year + non_music_total_times + bilingual * music_infant_total_times, data = almmlabsurvey) 
+summary(cdi_infancy_int_nonmusic)
+cdi_concurrent_int_nonmusic <- lm(cdi_raw ~ age + education_year + non_music_total_times + bilingual * music_current_total_times, data = almmlabsurvey) 
+summary(cdi_concurrent_int_nonmusic)
+cdi_cumulative_int_nonmusic <- lm(cdi_raw ~ age + education_year + non_music_total_times + bilingual * music_total_times, data = almmlabsurvey) 
+summary(cdi_cumulative_int_nonmusic)
+
+lui_infancy_int_nonmusic <- lm(lui_raw ~ age + education_year + non_music_total_times + bilingual * music_infant_total_times, data = almmlabsurvey) 
+summary(lui_infancy_int_nonmusic)
+lui_concurrent_int_nonmusic <- lm(lui_raw ~ age + education_year + non_music_total_times + bilingual * music_current_total_times, data = almmlabsurvey) 
+summary(lui_concurrent_int_nonmusic)
+lui_cumulative_int_nonmusic <- lm(lui_raw ~ age + education_year + non_music_total_times + bilingual * music_total_times, data = almmlabsurvey) 
+summary(lui_cumulative_int_nonmusic)
+
+emq_g_infancy_int_nonmusic <- lm(emq_g ~ age + education_year + non_music_total_times + bilingual * music_infant_total_times, data = almmlabsurvey) 
+emq_g_concurrent_int_nonmusic <- lm(emq_g ~ age + education_year + non_music_total_times + bilingual * music_current_total_times, data = almmlabsurvey) 
+emq_g_cumulative_int_nonmusic <- lm(emq_g ~ age + education_year + non_music_total_times + bilingual * music_total_times, data = almmlabsurvey) 
+
+emq_pa_infancy_int_nonmusic <- lm(emq_pa ~ age + education_year + non_music_total_times + bilingual * music_infant_total_times, data = almmlabsurvey) 
+emq_pa_concurrent_int_nonmusic <- lm(emq_pa ~ age + education_year + non_music_total_times + bilingual * music_current_total_times, data = almmlabsurvey) 
+emq_pa_cumulative_int_nonmusic <- lm(emq_pa ~ age + education_year + non_music_total_times + bilingual * music_total_times, data = almmlabsurvey)
+
+stars <- c(`***` = .001, `**` = .01, `*` = .05, `~` = .1)
+modelsummary(
+  list("Model 1" = cdi_infancy_int_nonmusic, "Model 2" = cdi_concurrent_int_nonmusic, "Model 3" = cdi_cumulative_int_nonmusic,
+       "Model 4" = lui_infancy_int_nonmusic, "Model 5" = lui_concurrent_int_nonmusic, "Model 6" = lui_cumulative_int_nonmusic,
+       "Model 7" = emq_g_infancy_int_nonmusic, "Model 8" = emq_g_concurrent_int_nonmusic, "Model 9" = emq_g_cumulative_int_nonmusic,
+       "Model 10" = emq_pa_infancy_int_nonmusic, "Model 11" = emq_pa_concurrent_int_nonmusic, "Model 12" = emq_pa_cumulative_int_nonmusic),
+  statistic = "({std.error})",  # Show standard errors in parentheses
+  stars = stars,
+  fmt = 2,                      # Round all numeric values to 2 decimal places
+  output = "/Users/ranwei/Dropbox (Personal)/ALMM/ALMM data/tableS2_regression_int_nonmusic.docx"
+)
+
+# Table S2: descriptive stats by cohort  ------------------------------------------------------
+
+almmlab <- almmlabsurvey_20250815[almmlabsurvey_20250815$lab == 1, ]
+almmsurvey <- almmlabsurvey_20250815[almmlabsurvey_20250815$lab == 0, ]
+almmlabsurvey <- almmlabsurvey_20250815
+
+# pre-pandemic cohort
+mean(almmlab$age)
+sd(almmlab$age)
+range(almmlab$age)
+
+table(almmlab$female)
+mean(almmlab$female)
+table(almmlab$bilingual)
+mean(almmlab$bilingual)
+table(almmlab$music)
+mean(almmlab$music)
+14/30
+
+summary(almmlab$education_year)
+sd(almmlab$education_year)
+table(almmlab$education_year)
+1/30
+5/30
+24/30
+
+summary(almmlab$music_infant_total_times)
+sd(almmlab$music_infant_total_times)
+summary(almmlab$music_current_total_times) 
+sd(almmlab$music_current_total_times)
+summary(almmlab$music_total_times)
+sd(almmlab$music_total_times)
+summary(almmlab$non_music_total_times)
+mean(almmlab$non_music_total_times)
+sd(almmlab$non_music_total_times)
+
+summary(almmlab$cdi_raw)
+sd(almmlab$cdi_raw)
+summary(almmlab$lui_raw)
+sd(almmlab$lui_raw, na.rm = TRUE)
+summary(almmlab$emq_g)
+sd(almmlab$emq_g, na.rm = TRUE)
+summary(almmlab$emq_pa)
+sd(almmlab$emq_pa, na.rm = TRUE)
+
+# remote cohort
+mean(almmsurvey$age)
+sd(almmsurvey$age)
+range(almmsurvey$age)
+
+table(almmsurvey$female)
+mean(almmsurvey$female)
+table(almmsurvey$bilingual)
+mean(almmsurvey$bilingual)
+
+summary(almmsurvey$education_year)
+sd(almmsurvey$education_year)
+table(almmsurvey$education_year)
+2/76
+17/76
+57/76
+
+table(almmsurvey$music)
+mean(almmsurvey$music)
+18/76
+
+summary(almmsurvey$music_infant_total_times)
+sd(almmsurvey$music_infant_total_times)
+summary(almmsurvey$music_current_total_times) 
+sd(almmsurvey$music_current_total_times)
+summary(almmsurvey$music_total_times)
+mean(almmsurvey$music_total_times)
+sd(almmsurvey$music_total_times)
+summary(almmsurvey$non_music_total_times)
+mean(almmsurvey$non_music_total_times)
+sd(almmsurvey$non_music_total_times)
+
+summary(almmsurvey$cdi_raw)
+sd(almmsurvey$cdi_raw)
+summary(almmsurvey$lui_raw)
+sd(almmsurvey$lui_raw, na.rm = TRUE)
+summary(almmsurvey$emq_g)
+sd(almmsurvey$emq_g, na.rm = TRUE)
+summary(almmsurvey$emq_pa)
+sd(almmsurvey$emq_pa, na.rm = TRUE)
+
+# Table S2: t-tests and chi-square tests comparing cohorts -------------------------------------------------
+
+t.test(almmlabsurvey$age~almmlabsurvey$lab)
+t.test(almmlabsurvey$bilingual~almmlabsurvey$lab) #*
+t.test(almmlabsurvey$education_year~almmlabsurvey$lab)
+t.test(almmlabsurvey$cdi_raw~almmlabsurvey$lab)
+t.test(almmlabsurvey$lui_raw~almmlabsurvey$lab)
+t.test(almmlabsurvey$emq_g~almmlabsurvey$lab)
+t.test(almmlabsurvey$emq_pa~almmlabsurvey$lab)
+
+t.test(almmlabsurvey$music_total_times~almmlabsurvey$lab) #~
+t.test(almmlabsurvey$music_infant_total_times~almmlabsurvey$lab) 
+t.test(almmlabsurvey$music_current_total_times~almmlabsurvey$lab) #*
+t.test(almmlabsurvey$non_music_total_times~almmlabsurvey$lab) 
+
+lab_nobilingual_bilingual <- c(16, 14)
+survey_nobilingual_bilingual <- c(58, 18)
+conttable_bilingual <- data.frame(lab_nobilingual_bilingual, survey_nobilingual_bilingual)
+chisq.test(conttable_bilingual) #* 
+
+lab_nomusicclass_musicclass <- c(16, 14)
+survey_nomusicclass_musicclass <- c(58, 18)
+conttable_musicclass <- data.frame(lab_nomusicclass_musicclass, survey_nomusicclass_musicclass)
+chisq.test(conttable_musicclass) #* 
+
+table(almmlab$female)
+table(almmsurvey$female)
+lab_male_female <- c(12, 18)
+survey_male_female <- c(37, 39)
+conttable_sex <- data.frame(lab_male_female, survey_male_female)
+chisq.test(conttable_sex) # ns
+
+
+# Table S3: are multilingual exposure or lower vocabulary driving the interaction effects --------
+
+lui_infancy_int_mono <- lm(lui_raw ~ age + education_year + cdi_raw * music_infant_total_times, data = almmmono) 
+summary(lui_infancy_int_mono)
+lui_concurrent_int_mono <- lm(lui_raw ~ age + education_year + cdi_raw * music_current_total_times, data = almmmono) 
+summary(lui_concurrent_int_mono)
+lui_cumulative_int_mono <- lm(lui_raw ~ age + education_year + cdi_raw * music_total_times, data = almmmono) 
+summary(lui_cumulative_int_mono)
+
+stars <- c(`***` = .001, `**` = .01, `*` = .05, `~` = .1)
+modelsummary(
+  list("Model 1" = lui_infancy_int_mono, "Model 2" = lui_concurrent_int_mono, "Model 3" = lui_cumulative_int_mono),
+  statistic = "({std.error})",  # Show standard errors in parentheses
+  stars = stars,
+  fmt = 2,                      # Round all numeric values to 2 decimal places
+  output = "/Users/ranwei/Dropbox (Personal)/ALMM/ALMM data/tableS3_regression_int.docx"
+)
+# Manually reported additional decimal places for small unstandardized coefficients (|B| < .01 when rounded) and 
+# standard errors (SE < .01 when rounded) to improve interpretability.
+
+
 
